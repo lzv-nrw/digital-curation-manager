@@ -1,0 +1,54 @@
+cff-version: 1.2.0
+title: Digital Curation Manager
+abstract: A pre-ingest tool for the streamlined validation, preparation and submission of digital objects into digital preservation systems.
+version: 2024.12.0
+url: 'https://github.com/lzv-nrw/digital-curation-manager'
+message: If you use this software, please cite it as below.
+type: software
+authors:
+  - given-names: Michael
+    family-names: Rahier
+    email: michael.rahier@uni-muenster.de
+    affiliation: University and State Library of Münster
+  - given-names: Stephan
+    family-names: Lenartz
+    email: lenartz@ub.uni-koeln.de
+    affiliation: University and City Library of Cologne
+  - given-names: Steffen
+    family-names: Richters-Finger
+    orcid: 'https://orcid.org/0000-0003-2080-4949'
+    email: srichters@uni-muenster.de
+    website: 'https://github.com/RichtersFinger'
+    affiliation: University and State Library of Münster
+  - given-names: Orestis
+    family-names: Kazasidis
+    orcid: 'https://orcid.org/0000-0002-1350-7674'
+    email: orestis.kazasidis@uni-muenster.de
+    website: 'https://www.researchgate.net/profile/Orestis-Kazasidis'
+    affiliation: University and State Library of Münster
+  - given-names: Kayhan
+    family-names: Ogan
+    email: kayhan.ogan@hbz-nrw.de
+    website: 'https://github.com/KayhanOgan'
+    affiliation: North Rhine-Westphalian Library Service Centre (hbz)
+  - given-names: Malte
+    family-names: Windrath
+  - given-names: Roman
+    family-names: Kudinov
+    email: kudinov@ub.uni-koeln.de
+    website: 'https://github.com/kudinovR'
+    affiliation: University and City Library of Cologne
+  - given-names: Sven
+    family-names: Haubold
+    affiliation: University and State Library of Münster
+keywords:
+  - digital preservation
+  - long-term preservation
+  - pre-ingest
+  - submission application
+  - object validation
+  - Ex Libris Rosetta
+publisher:
+  - name: LZV.nrw
+    website: 'https://www.lzv.nrw'
+license: MIT

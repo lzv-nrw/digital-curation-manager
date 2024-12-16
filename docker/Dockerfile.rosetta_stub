@@ -1,0 +1,13 @@
+# base image
+FROM python:3.10-alpine
+
+# python
+WORKDIR /app
+RUN pip install flask gunicorn
+
+# copy app into container
+COPY ./rosetta_stub.py /app/app.py
+
+# run and expose to local network(machine)
+ENTRYPOINT [ "gunicorn" ]
+CMD ["--bind", "0.0.0.0:80", "app:app"]

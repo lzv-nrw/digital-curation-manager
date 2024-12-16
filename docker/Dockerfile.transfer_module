@@ -1,0 +1,18 @@
+FROM python:3.10-alpine
+
+# install openssh+rsync
+RUN apk add openssh rsync
+
+# python
+WORKDIR /app
+RUN pip install --upgrade \
+    --extra-index-url https://zivgitlab.uni-muenster.de/api/v4/projects/9020/packages/pypi/simple \
+    "dcm-transfer-module>=2.0.0,<3.0.0"
+RUN pip install gunicorn
+
+# create app-file
+RUN echo -e "from dcm_transfer_module import app_factory, config\n\n\napp = app_factory(config.AppConfig())\n" > /app/app.py
+
+# run
+ENV WEB_CONCURRENCY=5
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:80 --workers 1 --threads ${WEB_CONCURRENCY} app:app"]
