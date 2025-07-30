@@ -5,14 +5,14 @@ RUN umask 022
 
 # python
 WORKDIR /app
-ARG BUILD_VERSION_SELECTOR=">=6.0.0,<7"
+ARG BUILD_VERSION_SELECTOR=">=0.1.0,<1"
 RUN pip install --upgrade \
     --extra-index-url https://zivgitlab.uni-muenster.de/api/v4/projects/9020/packages/pypi/simple \
-    "dcm-ip-builder[lax-mapping]${BUILD_VERSION_SELECTOR}"
+    "dcm-preparation-module${BUILD_VERSION_SELECTOR}"
 RUN pip install gunicorn
 
 # create app-file
-RUN echo -e "from dcm_ip_builder import app_factory, config\n\n\napp = app_factory(config.AppConfig())\n" > /app/app.py
+RUN echo -e "from dcm_preparation_module import app_factory, config\n\n\napp = app_factory(config.AppConfig())\n" > /app/app.py
 
 RUN adduser -u 303 -S dcm -G users
 RUN mkdir -p /file_storage && chown -R dcm:users /file_storage && chmod -R +w /file_storage

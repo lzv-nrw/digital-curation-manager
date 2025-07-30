@@ -1,10 +1,14 @@
 FROM python:3.10-alpine
 
+# setup for all users
+RUN umask 022
+
 # python
 WORKDIR /app
+ARG BUILD_VERSION_SELECTOR=">=3.0.0,<4"
 RUN pip install --upgrade \
     --extra-index-url https://zivgitlab.uni-muenster.de/api/v4/projects/9020/packages/pypi/simple \
-    "dcm-backend>=1.0.0,<2.0.0"
+    "dcm-backend${BUILD_VERSION_SELECTOR}"
 RUN pip install gunicorn
 
 # create stub-auth-file
@@ -13,6 +17,9 @@ RUN echo "Authorization: Basic abc" > /app/stub_auth
 # create app-file
 RUN echo -e "from dcm_backend import app_factory, config\n\n\napp = app_factory(config.AppConfig())\n" > /app/app.py
 
+RUN adduser -u 303 -S dcm -G users
+USER dcm
+
 # run
 ENV WEB_CONCURRENCY=5
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:80 --workers 1 --threads ${WEB_CONCURRENCY} app:app"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:8080 --workers 1 --threads ${WEB_CONCURRENCY} app:app"]

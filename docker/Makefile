@@ -1,38 +1,47 @@
-DFLAGS =
+DFLAGS=
+TAG=
+ifeq ($(TAG), )
+	_TAG=
+else
+	_TAG=:${TAG}
+endif
 
 _:
 	echo "Missing target. See README for details."
 
 import-module:
-	docker build -t dcm/import-module:latest -f Dockerfile.import_module ${DFLAGS} .
+	docker build -t lzvnrw/import-module${_TAG} -f Dockerfile.import_module ${DFLAGS} .
 
 object-validator:
-	docker build -t dcm/object-validator:latest -f Dockerfile.object_validator ${DFLAGS} .
+	docker build -t lzvnrw/object-validator${_TAG} -f Dockerfile.object_validator ${DFLAGS} .
 
 ip-builder:
-	docker build -t dcm/ip-builder:latest -f Dockerfile.ip_builder ${DFLAGS} .
+	docker build -t lzvnrw/ip-builder${_TAG} -f Dockerfile.ip_builder ${DFLAGS} .
+
+preparation-module:
+	docker build -t lzvnrw/preparation-module${_TAG} -f Dockerfile.preparation_module ${DFLAGS} .
 
 sip-builder:
-	docker build -t dcm/sip-builder:latest -f Dockerfile.sip_builder ${DFLAGS} .
+	docker build -t lzvnrw/sip-builder${_TAG} -f Dockerfile.sip_builder ${DFLAGS} .
 
 transfer-module:
-	docker build -t dcm/transfer-module:latest -f Dockerfile.transfer_module ${DFLAGS} .
+	docker build -t lzvnrw/transfer-module${_TAG} -f Dockerfile.transfer_module ${DFLAGS} .
 
 job-processor:
-	docker build -t dcm/job-processor:latest -f Dockerfile.job_processor ${DFLAGS} .
+	docker build -t lzvnrw/job-processor${_TAG} -f Dockerfile.job_processor ${DFLAGS} .
 
 backend:
-	docker build -t dcm/backend:latest -f Dockerfile.backend ${DFLAGS} .
+	docker build -t lzvnrw/backend${_TAG} -f Dockerfile.backend ${DFLAGS} .
+
+frontend:
+	docker build -t lzvnrw/frontend${_TAG} -f Dockerfile.frontend ${DFLAGS} .
 
 queue-registry-notifications:
-	docker build -t dcm/queue-registry-notifications:latest -f Dockerfile.queue_registry_notifications $${DFLAGS} .
-
-key-value-store:
-	docker build -t dcm/key-value-store:latest -f Dockerfile.key_value_store ${DFLAGS} .
+	docker build -t lzvnrw/queue-registry-notifications${_TAG} -f Dockerfile.queue_registry_notifications ${DFLAGS} .
 
 rosetta-stub:
-	docker build -t dcm/rosetta-stub:latest -f Dockerfile.rosetta_stub ${DFLAGS} .
+	docker build -t lzvnrw/rosetta-stub${_TAG} -f Dockerfile.rosetta_stub ${DFLAGS} .
 
-dcm: import-module object-validator ip-builder sip-builder transfer-module job-processor backend
+dcm: import-module object-validator ip-builder preparation-module sip-builder transfer-module job-processor backend frontend
 
-all: dcm queue-registry-notifications key-value-store rosetta-stub
+all: dcm queue-registry-notifications rosetta-stub

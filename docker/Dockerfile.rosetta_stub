@@ -1,5 +1,7 @@
-# base image
 FROM python:3.10-alpine
+
+# setup for all users
+RUN umask 022
 
 # python
 WORKDIR /app
@@ -8,6 +10,10 @@ RUN pip install flask gunicorn
 # copy app into container
 COPY ./rosetta_stub.py /app/app.py
 
+RUN adduser -u 303 -S dcm -G users
+RUN mkdir -p /file_storage && chown -R dcm:users /file_storage && chmod -R +w /file_storage
+USER dcm
+
 # run and expose to local network(machine)
 ENTRYPOINT [ "gunicorn" ]
-CMD ["--bind", "0.0.0.0:80", "app:app"]
+CMD ["--bind", "0.0.0.0:8080", "app:app"]

@@ -1,18 +1,26 @@
 FROM python:3.10-alpine
 
+# setup for all users
+RUN umask 022
+
 # install openssh+rsync
 RUN apk add openssh rsync
 
 # python
 WORKDIR /app
+ARG BUILD_VERSION_SELECTOR=">=2.0.2,<3"
 RUN pip install --upgrade \
     --extra-index-url https://zivgitlab.uni-muenster.de/api/v4/projects/9020/packages/pypi/simple \
-    "dcm-transfer-module>=2.0.0,<3.0.0"
+    "dcm-transfer-module${BUILD_VERSION_SELECTOR}"
 RUN pip install gunicorn
 
 # create app-file
 RUN echo -e "from dcm_transfer_module import app_factory, config\n\n\napp = app_factory(config.AppConfig())\n" > /app/app.py
 
+RUN adduser -u 303 -S dcm -G users
+RUN mkdir -p /file_storage && chown -R dcm:users /file_storage && chmod -R +w /file_storage
+USER dcm
+
 # run
 ENV WEB_CONCURRENCY=5
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:80 --workers 1 --threads ${WEB_CONCURRENCY} app:app"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:8080 --workers 1 --threads ${WEB_CONCURRENCY} app:app"]

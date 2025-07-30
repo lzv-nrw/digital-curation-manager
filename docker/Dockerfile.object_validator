@@ -1,28 +1,36 @@
 FROM python:3.10-alpine
 
+# setup for all users
+RUN umask 022
+
 # install java dependencies
 # java
 RUN apk add openjdk17
 # jhove
-RUN mkdir /app
-RUN mkdir /app/jhove
+RUN mkdir -p /app/jhove
 WORKDIR /app/jhove
-RUN wget -Y on -O jhove-latest.jar "http://software.openpreservation.org/rel/jhove-latest.jar" && \
+RUN wget -Y on -O jhove.jar "https://software.openpreservation.org/releases/jhove/jhove-1.32.jar" && \
+    echo "1cde66c3fe669e5a93f41378e944bf7a  jhove.jar" | md5sum -c - && \
     echo '<?xml version="1.0" encoding="UTF-8" standalone="no"?><AutomatedInstallation langpack="eng"><com.izforge.izpack.panels.htmlinfo.HTMLInfoPanel id="welcome"/><com.izforge.izpack.panels.target.TargetPanel id="install_dir"><installpath>'/app/jhove/'</installpath></com.izforge.izpack.panels.target.TargetPanel><com.izforge.izpack.panels.packs.PacksPanel id="sdk_pack_select"><pack index="0" name="JHOVE Application" selected="true"/><pack index="1" name="JHOVE Shell Scripts" selected="true"/><pack index="2" name="JHOVE External Modules" selected="true"/></com.izforge.izpack.panels.packs.PacksPanel><com.izforge.izpack.panels.install.InstallPanel id="install"/><com.izforge.izpack.panels.finish.FinishPanel id="finish"/></AutomatedInstallation>' > jhove-auto-install.xml && \
-    java -jar jhove-latest.jar jhove-auto-install.xml && \
-    rm jhove-auto-install.xml jhove-latest.jar
-ENV JHOVE_APP=/app/jhove/jhove
+    java -jar jhove.jar jhove-auto-install.xml && \
+    rm jhove-auto-install.xml jhove.jar
+ENV DEFAULT_JHOVE_CMD=/app/jhove/jhove
 
 # python
 WORKDIR /app
+ARG BUILD_VERSION_SELECTOR=">=5.0.1,<6"
 RUN pip install --upgrade \
     --extra-index-url https://zivgitlab.uni-muenster.de/api/v4/projects/9020/packages/pypi/simple \
-    "dcm-object-validator>=4.0.0,<5.0.0"
+    "dcm-object-validator[fido]${BUILD_VERSION_SELECTOR}"
 RUN pip install gunicorn
 
 # create app-file
 RUN echo -e "from dcm_object_validator import app_factory, config\n\n\napp = app_factory(config.AppConfig())\n" > /app/app.py
 
+RUN adduser -u 303 -S dcm -G users
+RUN mkdir -p /file_storage && chown -R dcm:users /file_storage && chmod -R +w /file_storage
+USER dcm
+
 # run
 ENV WEB_CONCURRENCY=5
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:80 --workers 1 --threads ${WEB_CONCURRENCY} app:app"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:8080 --workers 1 --threads ${WEB_CONCURRENCY} app:app"]

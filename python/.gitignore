@@ -1,0 +1,7 @@
+data/
+venv/
+__pycache__/
+
+key_value_store.py
+rosetta_stub.py
+rosetta_stub_auth

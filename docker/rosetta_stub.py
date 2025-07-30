@@ -1,46 +1,67 @@
 """
 Minimal flask app that can be used as a stub for the Rosetta REST-API
-(Deposit Web Services, https://developers.exlibrisgroup.com/rosetta/apis/rest-apis/deposits/).
+* (Deposit Web Services, https://developers.exlibrisgroup.com/rosetta/apis/rest-apis/deposits/).
+* (SIP Processing Related Web Services, https://developers.exlibrisgroup.com/rosetta/apis/rest-apis/sips/).
 """
 
 from typing import Optional
 import os
 from pathlib import Path
 import json
-from random import randint
-from datetime import datetime
+import datetime
+from random import choices
 
-from flask import Flask, jsonify, Response, request
+from flask import Flask, jsonify, request
 
 
 def app_factory(dir_: Optional[Path] = None):
     """
-    Returns minimal flask app that can be used to fake responses of the
-    Rosetta REST-API calls.
+    Returns Rosetta-REST API v0-stub.
+
+    If no `_dir` is passed, run in-memory, otherwise on disk in given
+    directory.
+
+    NOTE: On update, please consider also updating the stub in
+    'dcm-backend' accordingly.
     """
     _app = Flask(__name__)
 
-    if dir_ is not None:
-        dir_.mkdir(parents=True, exist_ok=True)
+    deposit_dir = None
+    sip_dir = None
+    deposit_cache = None
+    sip_cache = None
+    mem = dir_ is None
+    if mem:
+        deposit_cache = {}
+        sip_cache = {}
+    else:
+        deposit_dir = dir_ / "deposit"
+        sip_dir = dir_ / "sip"
 
-    def create_deposit(subdir, producer, material_flow):
-        """Returns deposit-object as dictionary and writes to file."""
-        _deposit_id = None
+    def create_deposit(subdirectory, producer, material_flow):
+        """
+        Returns deposit-object as dictionary and writes deposit+sip
+        to caches/files.
+        """
+        deposit_id = None
         for _ in range(10):
-            __ = str(randint(1000, 9999))
-            if not (dir_ / __).exists():
-                _deposit_id = __
+            __ = "".join(choices("0123456789", k=4))
+            if (dir_ is None and __ not in deposit_cache) or (
+                dir_ is not None and not (dir_ / __).exists()
+            ):
+                deposit_id = __
                 break
-        if _deposit_id is None:
+        if deposit_id is None:
             return jsonify({}), 500
-        date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        sip_id = f"SIP{deposit_id}"
+        date = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         deposit = {
-            "subdirectory": subdir,
-            "id": _deposit_id,
+            "subdirectory": subdirectory,
+            "id": deposit_id,
             "creation_date": date,
             "submission_date": date,
             "update_date": date,
-            "status": "INPROCESS",
+            "status": "INPROCESS",  # REJECTED, DECLINED, INPROCESS, FINISHED, DELETED, ERROR, IN_HUMAN_STAGE
             "title": None,
             "producer_agent": {
                 "value": "1234",
@@ -54,37 +75,90 @@ def app_factory(dir_: Optional[Path] = None):
                 "value": material_flow,
                 "desc": "Description of the material flow"
             },
-            "sip_id": "101010",
+            "sip_id": sip_id,
             "sip_reason": None,
-            "link": "/rest/v0/deposits/" + _deposit_id
+            "link": "/rest/v0/deposits/" + deposit_id
         }
-        (dir_ / _deposit_id).write_text(json.dumps(deposit), encoding="utf-8")
+        sip = {
+            "link": "/rest/v0/sips/" + sip_id,
+            "id": f"SIP{deposit_id}",
+            "externalId": None,
+            "externalSystem": None,
+            "stage": "Deposit",  # Deposit, Loading, Validation, Assessor, Arranger, Approver, Bytestream, Enrichment, ToPermanent, Finished
+            "status": "INPROCESS",  # REJECTED, DECLINED, INPROCESS, FINISHED, DELETED, ERROR, IN_HUMAN_STAGE
+            "numberofIEs": "1",
+            "iePids": f"IE{deposit_id}",
+        }
+        if mem:
+            deposit_cache[deposit_id] = deposit
+            sip_cache[sip_id] = sip
+        else:
+            deposit_dir.mkdir(parents=True, exist_ok=True)
+            sip_dir.mkdir(parents=True, exist_ok=True)
+            (deposit_dir / deposit_id).write_text(
+                json.dumps(deposit), encoding="utf-8"
+            )
+            (sip_dir / sip_id).write_text(
+                json.dumps(sip), encoding="utf-8"
+            )
         return deposit
 
-    def get_deposit(_deposit_id):
+    def get_deposit(deposit_id):
+        """
+        Returns deposit data from cache/disk or `None` if
+        unavailable.
+        """
+        result = None
+        if mem:
+            result = deposit_cache.get(deposit_id)
+        else:
+            if (deposit_dir / deposit_id).is_file():
+                result = json.loads(
+                    (deposit_dir / deposit_id).read_text(encoding="utf-8")
+                )
+        return result
+
+    def get_sip(sip_id):
         """
         Tries to load data from working dir and returns appropriate
         response + status code.
         """
-        try:
-            return (
-                jsonify(
-                    json.loads(
-                        (dir_ / _deposit_id).read_text(encoding="utf-8")
-                    )
-                ),
-                200
-            )
-        except FileNotFoundError:
-            return Response(
-                f"Deposit ID {_deposit_id} does not exist.",
-                mimetype="text/plain",
-                status=204
-            )
+        result = None
+        if mem:
+            result = sip_cache.get(sip_id)
+        else:
+            if (sip_dir / sip_id).is_file():
+                result = json.loads(
+                    (sip_dir / sip_id).read_text(encoding="utf-8")
+                )
+        if result is None:
+            # for some reason requesting a non-existent SIP returns
+            # this object
+            return {
+                "link": None,
+                "id": None,
+                "externalId": None,
+                "externalSystem": None,
+                "stage": None,
+                "status": None,
+                "numberofIEs": None,
+                "iePids": None,
+            }
+        return result
 
     @_app.route("/rest/v0/deposits/<id_>", methods=["GET"])
     def deposits_get(id_: str):
-        return get_deposit(id_)
+        data = get_deposit(id_)
+        if data is None:
+            return jsonify(None), 204
+        return jsonify(data), 200
+
+    @_app.route("/rest/v0/sips/<id_>", methods=["GET"])
+    def sips_get(id_: str):
+        data = get_sip(id_)
+        if data is None:
+            return jsonify(None), 204
+        return jsonify(data), 200
 
     @_app.route("/rest/v0/deposits", methods=["POST"])
     def deposits_post():

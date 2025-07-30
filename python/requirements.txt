@@ -1,0 +1,11 @@
+dcm-import-module>=4.2.0,<5
+dcm-ip-builder[lax-mapping]>=6.0.0,<7
+dcm-object-validator[fido]>=5.0.1,<6
+dcm-preparation-module>=0.1.0,<1
+dcm-sip-builder>=2.1.0,<3
+dcm-transfer-module>=2.0.2,<3
+dcm-backend>=3.0.0,<4
+dcm-job-processor>=2.0.0,<3
+dcm-frontend>=0.1.2,<1
+python-dotenv
+setuptools  # only relevant for python>=3.12 due to a dependency in bagit

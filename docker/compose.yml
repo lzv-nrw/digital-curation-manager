@@ -1,68 +1,117 @@
 services:
   import-module:
-    image: dcm/import-module:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.import_module
+    image: lzvnrw/import-module
     container_name: import-module
-    environment:
-      - USE_TEST_PLUGIN=1
+    env_file:
+      - env/import_module.env
     volumes:
       - file_storage:/file_storage
   object-validator:
-    image: dcm/object-validator:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.object_validator
+    image: lzvnrw/object-validator
     container_name: object-validator
+    env_file:
+      - env/object_validator.env
     volumes:
       - file_storage:/file_storage
   ip-builder:
-    image: dcm/ip-builder:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.ip_builder
+    image: lzvnrw/ip-builder
     container_name: ip-builder
-    environment:
-      - USE_OBJECT_VALIDATOR=0
+    env_file:
+      - env/ip_builder.env
+    volumes:
+      - file_storage:/file_storage
+  preparation-module:
+    build:
+      context: .
+      dockerfile: Dockerfile.preparation_module
+    image: lzvnrw/preparation-module
+    container_name: preparation-module
     volumes:
       - file_storage:/file_storage
   sip-builder:
-    image: dcm/sip-builder:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.sip_builder
+    image: lzvnrw/sip-builder
     container_name: sip-builder
+    env_file:
+      - env/sip_builder.env
     volumes:
       - file_storage:/file_storage
   transfer-module:
-    image: dcm/transfer-module:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.transfer_module
+    image: lzvnrw/transfer-module
     container_name: transfer-module
-    environment:
-      - LOCAL_TRANSFER=1
-      - REMOTE_DESTINATION=/file_storage/remote
+    env_file:
+      - env/transfer_module.env
     volumes:
       - file_storage:/file_storage
   job-processor:
-    image: dcm/job-processor:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.job_processor
+    image: lzvnrw/job-processor
     container_name: job-processor
-    environment:
-      - IMPORT_MODULE_HOST=http://import-module
-      - IP_BUILDER_HOST=http://ip-builder
-      - OBJECT_VALIDATOR_HOST=http://object-validator
-      - SIP_BUILDER_HOST=http://sip-builder
-      - TRANSFER_MODULE_HOST=http://transfer-module
-      - BACKEND_HOST=http://backend
-      - ORCHESTRATION_REGISTRY_ADAPTER=http
-      - 'ORCHESTRATION_REGISTRY_SETTINGS={"url": "http://report-db"}'
+    depends_on:
+      backend:
+        condition: service_healthy
+    env_file:
+      - env/job_processor.env
   backend:
-    image: dcm/backend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    image: lzvnrw/backend
     container_name: backend
-    environment:
-      - ORCHESTRATION_PROCESSES=5
-      - JOB_PROCESSOR_HOST=http://job-processor
-      - ROSETTA_AUTH_FILE=/app/stub_auth
-      - ARCHIVE_API_BASE_URL=http://rosetta-stub
-      - REPORT_DATABASE_ADAPTER=http
-      - 'REPORT_DATABASE_SETTINGS={"url": "http://report-db"}'
+    depends_on:
+      database:
+        condition: service_started
+    healthcheck:
+      test: "python3 -c 'import urllib.request as r; import sys; sys.exit(0) if r.urlopen(\"http://localhost:8080/status\").status == 200 else sys.exit(1)'"
+      interval: 1s
+      retries: 10
+      start_period: 1s
+      timeout: 5s
+    env_file:
+      - env/backend.env
     ports:
-      - 8085:80
-  report-db:
-    image: dcm/key-value-store:latest
-    container_name: report-db
+      - 8086:8080
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    image: lzvnrw/frontend
+    container_name: frontend
+    env_file:
+      - env/frontend.env
+    ports:
+      - 8088:8080
+  database:
+    image: postgres:14.13
+    container_name: database
+    env_file:
+      - env/database.env
+    volumes:
+      - file_storage:/file_storage
   rosetta-stub:
-    image: dcm/rosetta-stub:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.rosetta_stub
+    image: lzvnrw/rosetta-stub
     container_name: rosetta-stub
-    environment:
-      - ROSETTA_STUB_OUT=/file_storage/archive
+    env_file:
+      - env/rosetta_stub.env
     volumes:
       - file_storage:/file_storage
 volumes:
