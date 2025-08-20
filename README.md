@@ -2,6 +2,10 @@
 
 This is a meta-repository for the software system `Digital Curation Manager` (DCM) developed in the context of the [LZV.nrw](https://lzv.nrw/)-initiative.
 
+## Software architecture
+The following diagram visualizes the top level of the DCM's software architecture:
+![result](gallery/architecture.png)
+
 ## Repositories
 The following is a comprehensive list of related repositories
 * APIs

@@ -1,5 +1,16 @@
 # Changelog
 
+## [2025.08.0] - 2025-08-20
+
+### Changed
+
+- updated package versions
+- updated snapshots of frontend client
+
+### Added
+
+- added snapshot of software-architecture to README
+
 ## [2025.07.0] - 2025-07-30
 
 ### Changed
