@@ -36,12 +36,12 @@ backend:
 frontend:
 	docker build -t lzvnrw/frontend${_TAG} -f Dockerfile.frontend ${DFLAGS} .
 
-queue-registry-notifications:
-	docker build -t lzvnrw/queue-registry-notifications${_TAG} -f Dockerfile.queue_registry_notifications ${DFLAGS} .
+orchestration-controller:
+	docker build -t lzvnrw/orchestration-controller${_TAG} -f Dockerfile.orchestration_controller ${DFLAGS} .
 
 rosetta-stub:
 	docker build -t lzvnrw/rosetta-stub${_TAG} -f Dockerfile.rosetta_stub ${DFLAGS} .
 
 dcm: import-module object-validator ip-builder preparation-module sip-builder transfer-module job-processor backend frontend
 
-all: dcm queue-registry-notifications rosetta-stub
+all: dcm orchestration-controller rosetta-stub

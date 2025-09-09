@@ -1,5 +1,19 @@
 # Changelog
 
+## [2025.09.0] - 2025-09-09
+
+### Changed
+
+- migrated to latest major versions for APIs, apps, and libraries
+
+### Added
+
+- added example for deployment with multiple replicas using orchestration-controller in docker-compose
+
+### Removed
+
+- removed queue-registry-notifications-service and replaced with orchestration-controller
+
 ## [2025.08.0] - 2025-08-20
 
 ### Changed

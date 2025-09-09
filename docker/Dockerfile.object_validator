@@ -18,7 +18,7 @@ ENV DEFAULT_JHOVE_CMD=/app/jhove/jhove
 
 # python
 WORKDIR /app
-ARG BUILD_VERSION_SELECTOR=">=5.2.0,<6"
+ARG BUILD_VERSION_SELECTOR=">=6.0.0,<7"
 RUN pip install --upgrade \
     --extra-index-url https://zivgitlab.uni-muenster.de/api/v4/projects/9020/packages/pypi/simple \
     "dcm-object-validator[fido]${BUILD_VERSION_SELECTOR}"

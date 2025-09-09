@@ -8,7 +8,7 @@ RUN apk add openssh rsync
 
 # python
 WORKDIR /app
-ARG BUILD_VERSION_SELECTOR=">=2.2.0,<3"
+ARG BUILD_VERSION_SELECTOR=">=3.0.0,<4"
 RUN pip install --upgrade \
     --extra-index-url https://zivgitlab.uni-muenster.de/api/v4/projects/9020/packages/pypi/simple \
     "dcm-transfer-module${BUILD_VERSION_SELECTOR}"

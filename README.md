@@ -127,14 +127,11 @@ make import-module DFLAGS="--build-arg BUILD_VERSION_SELECTOR='>=1.0.2,<1.1'"
 To allow running a comprehensive demo, some additional services are required (see target `all` when [building images](#manually-build-docker-images)).
 In the following, a brief description of the options for environment-configuration are given.
 
-#### lzvnrw/queue-registry-notifications
-Combined job queue-, job registry-, and notifications service-solution that is recommended in order to allow scaling the DCM-microservices horizontally.
-This service defines HTTP-APIs to be used by individual workers as a common job-queue and similar resources.
+#### lzvnrw/orchestration-controller
+Combined job queue-, job registry-, and messages service that is recommended in order to allow horizontal scaling of DCM-microservices.
+This service defines an HTTP-API to be used by individual workers as a common job-queue and similar resources.
 
-Environment configuration options:
-* `X_MOUNT_POINT`: where `X` is either `QUEUE` or `REGISTRY`; job queue and registry; specify the location where JSON-documents should be written; if omitted, an in-memory database-backend is used
-* `NOTIFICATION_REGISTRY`: notification-service user-registry; specify the location where JSON-documents should be written; if omitted, an in-memory database-backend is used
-* `NOTIFICATION_ABORT_DB`: notification-service abort-subscriptions; specify the location where JSON-documents should be written; if omitted, an in-memory database-backend is used
+In order to configure the controller that is exposed via the HTTP-API, use the environment variable `ORCHESTRA_CONTROLLER_ARGS` as documented [here](https://github.com/lzv-nrw/dcm-common/-/tree/dev#orchestratedappconfig---environmentconfiguration).
 
 #### lzvnrw/rosetta-stub
 Minimal flask app that can be used as a stub for a part of the Rosetta REST-API ([Deposit Web Services](https://developers.exlibrisgroup.com/rosetta/apis/rest-apis/deposits/) and [SIP Processing Related Web Services](https://developers.exlibrisgroup.com/rosetta/apis/rest-apis/sips/)).

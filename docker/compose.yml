@@ -9,12 +9,26 @@ services:
       - env/import_module.env
     volumes:
       - file_storage:/file_storage
+  object-validator-controller:
+    build:
+      context: .
+      dockerfile: Dockerfile.orchestration_controller
+    image: lzvnrw/orchestration-controller
+    container_name: object-validator-controller
+    environment:
+      ORCHESTRA_CONTROLLER_ARGS: '{"path": "/file_storage/object-validator-controller.db"}'
+    volumes:
+      - file_storage:/file_storage
   object-validator:
     build:
       context: .
       dockerfile: Dockerfile.object_validator
     image: lzvnrw/object-validator
-    container_name: object-validator
+    depends_on:
+      object-validator-controller:
+        condition: service_started
+    deploy:
+      replicas: 2
     env_file:
       - env/object_validator.env
     volumes:

@@ -5,14 +5,14 @@ RUN umask 022
 
 # python
 WORKDIR /app
-ARG BUILD_VERSION_SELECTOR=">=3.28.0,<4"
+ARG BUILD_VERSION_SELECTOR=">=4.0.0,<5"
 RUN pip install --upgrade \
     --extra-index-url https://zivgitlab.uni-muenster.de/api/v4/projects/9020/packages/pypi/simple \
-    "dcm-common[db, services]${BUILD_VERSION_SELECTOR}"
+    "dcm-common[orchestra, services]${BUILD_VERSION_SELECTOR}"
 RUN pip install gunicorn
 
 # create app-file
-COPY ./queue_registry_notifications.py /app/app.py
+COPY ./orchestration_controller.py /app/app.py
 
 RUN adduser -u 303 -S dcm -G users
 USER dcm
