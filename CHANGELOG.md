@@ -1,5 +1,11 @@
 # Changelog
 
+## [2025.09.1] - 2025-10-09
+
+### Fixed
+
+- fixed outdated environment variables for backend in demo-deployments
+
 ## [2025.09.0] - 2025-09-09
 
 ### Changed
