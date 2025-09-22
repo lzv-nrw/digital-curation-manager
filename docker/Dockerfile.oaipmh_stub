@@ -1,0 +1,18 @@
+FROM python:3.10-alpine
+
+# setup for all users
+RUN umask 022
+
+# python
+WORKDIR /app
+RUN pip install flask gunicorn
+
+# copy app into container
+COPY ./oaipmh_stub.py /app/app.py
+
+RUN adduser -u 303 -S dcm -G users
+USER dcm
+
+# run and expose to local network(machine)
+ENTRYPOINT [ "gunicorn" ]
+CMD ["--bind", "0.0.0.0:8080", "app:app"]

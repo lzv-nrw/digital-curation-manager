@@ -20,6 +20,7 @@ print("Preparing environment..")
 import shutil
 
 shutil.copy(Path("../docker/rosetta_stub.py"), Path("rosetta_stub.py"))
+shutil.copy(Path("../docker/oaipmh_stub.py"), Path("oaipmh_stub.py"))
 
 # # set up working directory
 Path("data/dcm").mkdir(parents=True, exist_ok=True)
@@ -153,9 +154,13 @@ def create_backend():
 
     update_werkzeug_logging("[Backend]", "\033[0;36m")
 
-    return dcm_backend.app_factory(
-        dcm_backend.config.AppConfig(), as_process=True
-    )
+    config = dcm_backend.config.AppConfig()
+
+    # create directories of hotfolders for the demo
+    for hotfolder in config.hotfolders.values():
+        hotfolder.mount.mkdir(parents=True, exist_ok=True)
+
+    return dcm_backend.app_factory(config, as_process=True)
 
 
 services["Backend"] = (create_backend, 8086)
@@ -202,6 +207,19 @@ def create_rosetta_stub():
 
 
 services["Rosetta Stub"] = (create_rosetta_stub, 8089)
+
+
+def create_oaipmh_stub():
+    """Loads env, imports package, and returns flask-app."""
+    load_dotenv("env/oaipmh_stub.env")
+    from oaipmh_stub import app
+
+    update_werkzeug_logging("[OAI-PMH Stub]", "\033[1;34m")
+
+    return app
+
+
+services["OAI-PMH Stub"] = (create_oaipmh_stub, 8090)
 
 # ----------------------------------------------------------------------
 # start services

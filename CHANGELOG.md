@@ -1,6 +1,22 @@
 # Changelog
 
-## [2025.09.1] - 2025-10-09
+## [2025.09.3] - 2025-09-22
+
+### Changed
+
+- updated to latest frontend-version
+
+### Added
+
+- added OAI-PMH stub server
+
+## [2025.09.2] - 2025-09-16
+
+### Changed
+
+- updated to latest hotfolder-concept
+
+## [2025.09.1] - 2025-09-10
 
 ### Fixed
 

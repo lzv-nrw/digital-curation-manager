@@ -5,7 +5,7 @@ RUN umask 022
 
 # python
 WORKDIR /app
-ARG BUILD_VERSION_SELECTOR=">=4.0.0,<5"
+ARG BUILD_VERSION_SELECTOR=">=4.3.0,<5"
 RUN pip install --upgrade \
     --extra-index-url https://zivgitlab.uni-muenster.de/api/v4/projects/9020/packages/pypi/simple \
     "dcm-backend${BUILD_VERSION_SELECTOR}"

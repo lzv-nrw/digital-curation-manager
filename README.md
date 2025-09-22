@@ -63,10 +63,13 @@ python3 run.py
 After all services have started, the frontend web-client is hosted at `http://localhost:8088`.
 By default, a demo-data set will be loaded including an administrator (username: `admin`; pw: `admin`) and a few curator-users (see [backend-documentation](https://github.com/lzv-nrw/dcm-backend#database) for details).
 API-tests can be run as described [below](#api-test).
-All data will be generated in the data subdirectory.
+All data will be generated in the `data`-subdirectory.
+This also includes a hotfolder `hotfolder-0` which is already pre-configured for this demo.
 Afterwards, the execution can be stopped with `CTRL+C`.
 
-Alongside the actual DCM-services, a stub-server for the archive system is deployed which simulates relevant parts of the ExLibris Rosetta-REST-API (see also [this description](#lzvnrwrosetta-stub)).
+Alongside the actual DCM-services, two additional servers are deployed:
+* a stub-server for an OAI-PMH-repository (see also [this description](#lzvnrwoaipmh-stub)) (endpoint: `http://localhost:8090/oai`) and
+* a stub-server for the archive system which simulates relevant parts of the ExLibris Rosetta-REST-API (see also [this description](#lzvnrwrosetta-stub)).
 
 ## Docker
 This repository contains `Dockerfiles` for building all DCM core- as well as supplementary-services (with the latter only intended to be used in a test-instance; see details [here](#miscellaneous-images)).
@@ -92,6 +95,11 @@ To fully shut down the system and remove containers, first stop the process and 
 ```
 docker compose down
 ```
+
+The `compose.yml` mounts a hotfolder `hotfolder/` from the current working directory.
+Both the Backend- and the Import Module-services are configured to use that hotfolder as a source for corresponding jobs.
+Beware that the containers accessing this directory act with UID 303 and GID 100 and need read+write-access to that directory and its contents.
+By default, after placing data in this hotfolder, permissions need to be updated manually.
 
 ### Manually build docker images
 This repository contains a `Makefile` that can be used to simplify a manually building docker images.
@@ -132,6 +140,12 @@ Combined job queue-, job registry-, and messages service that is recommended in 
 This service defines an HTTP-API to be used by individual workers as a common job-queue and similar resources.
 
 In order to configure the controller that is exposed via the HTTP-API, use the environment variable `ORCHESTRA_CONTROLLER_ARGS` as documented [here](https://github.com/lzv-nrw/dcm-common/-/tree/dev#orchestratedappconfig---environmentconfiguration).
+
+#### lzvnrw/oaipmh-stub
+Minimal flask app that can be used as a stub for an [OAI-PMH](https://www.openarchives.org/OAI/openarchivesprotocol.html)-repository.
+It implements only the subset of OAI-verbs required by the DCM-services and serves randomly (per deploy) generated (meta-)data.
+A wide range of configuration-options (like a randomizer seed, rates for invalid payload or server errors, or latency) is available via the environment, these are documented in `docker/oaipmh_stub.py`.
+In the docker-demo provided by the file `docker/compose.yml`, a corresponding oai-endpoint is available at `http://oaipmh-stub:8080/oai`.
 
 #### lzvnrw/rosetta-stub
 Minimal flask app that can be used as a stub for a part of the Rosetta REST-API ([Deposit Web Services](https://developers.exlibrisgroup.com/rosetta/apis/rest-apis/deposits/) and [SIP Processing Related Web Services](https://developers.exlibrisgroup.com/rosetta/apis/rest-apis/sips/)).

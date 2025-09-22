@@ -9,6 +9,7 @@ services:
       - env/import_module.env
     volumes:
       - file_storage:/file_storage
+      - ./hotfolder:/hotfolder
   object-validator-controller:
     build:
       context: .
@@ -99,6 +100,8 @@ services:
       timeout: 5s
     env_file:
       - env/backend.env
+    volumes:
+      - ./hotfolder:/hotfolder
     ports:
       - 8086:8080
   frontend:
@@ -128,6 +131,14 @@ services:
       - env/rosetta_stub.env
     volumes:
       - file_storage:/file_storage
+  oaipmh-stub:
+    build:
+      context: .
+      dockerfile: Dockerfile.oaipmh_stub
+    image: lzvnrw/oaipmh-stub
+    container_name: oaipmh-stub
+    env_file:
+      - env/oaipmh_stub.env
 volumes:
   file_storage:
     external: True

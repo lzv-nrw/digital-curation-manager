@@ -42,6 +42,9 @@ orchestration-controller:
 rosetta-stub:
 	docker build -t lzvnrw/rosetta-stub${_TAG} -f Dockerfile.rosetta_stub ${DFLAGS} .
 
+oaipmh-stub:
+	docker build -t lzvnrw/oaipmh-stub${_TAG} -f Dockerfile.oaipmh-stub ${DFLAGS} .
+
 dcm: import-module object-validator ip-builder preparation-module sip-builder transfer-module job-processor backend frontend
 
-all: dcm orchestration-controller rosetta-stub
+all: dcm orchestration-controller rosetta-stub oaipmh-stub
