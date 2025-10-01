@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 title: Digital Curation Manager
 abstract: A pre-ingest tool for the streamlined validation, preparation and submission of digital objects into digital preservation systems.
-version: 2025.09.3
+version: 2025.10.0
 url: 'https://github.com/lzv-nrw/digital-curation-manager'
 message: If you use this software, please cite it as below.
 type: software

@@ -26,8 +26,6 @@ shutil.copy(Path("../docker/oaipmh_stub.py"), Path("oaipmh_stub.py"))
 Path("data/dcm").mkdir(parents=True, exist_ok=True)
 Path("data/other").mkdir(parents=True, exist_ok=True)
 
-Path("rosetta_stub_auth").write_bytes(b"Authorization: Basic abc")
-
 # ----------------------------------------------------------------------
 # configure services
 print("Configuring services..")

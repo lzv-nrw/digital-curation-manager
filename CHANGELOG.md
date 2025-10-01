@@ -1,5 +1,12 @@
 # Changelog
 
+## [2025.10.0] - 2025-10-01
+
+### Changed
+
+- updated demo-deployments to include multiple archive systems
+- updated to latest versions
+
 ## [2025.09.3] - 2025-09-22
 
 ### Changed

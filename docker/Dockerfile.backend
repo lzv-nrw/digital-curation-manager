@@ -5,14 +5,11 @@ RUN umask 022
 
 # python
 WORKDIR /app
-ARG BUILD_VERSION_SELECTOR=">=4.3.0,<5"
+ARG BUILD_VERSION_SELECTOR=">=5.0.0,<6"
 RUN pip install --upgrade \
     --extra-index-url https://zivgitlab.uni-muenster.de/api/v4/projects/9020/packages/pypi/simple \
     "dcm-backend${BUILD_VERSION_SELECTOR}"
 RUN pip install gunicorn
-
-# create stub-auth-file
-RUN echo "Authorization: Basic abc" > /app/stub_auth
 
 # create app-file
 RUN echo -e "from dcm_backend import app_factory, config\n\n\napp = app_factory(config.AppConfig())\n" > /app/app.py

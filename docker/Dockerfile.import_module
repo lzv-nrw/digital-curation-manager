@@ -5,7 +5,7 @@ RUN umask 022
 
 # python
 WORKDIR /app
-ARG BUILD_VERSION_SELECTOR=">=5.1.0,<6"
+ARG BUILD_VERSION_SELECTOR=">=5.1.1,<6"
 RUN pip install --upgrade \
     --extra-index-url https://zivgitlab.uni-muenster.de/api/v4/projects/9020/packages/pypi/simple \
     "dcm-import-module${BUILD_VERSION_SELECTOR}"
